@@ -1,15 +1,10 @@
-//
-//  WelcomePopupView.swift
-//  Track_habbits
-//
-//  Created by Егор Ерохин on 17/05/2026.
-//
-
 import SwiftUI
 
 struct WelcomePopupView: View {
 
-    let onPresetSelected: (WallpaperPreset) -> Void // ContentView передает функцию
+    let usedPresets: [WallpaperPreset]
+    let onPresetSelected: (WallpaperPreset) -> Void
+    let onCancel: () -> Void
 
     var body: some View {
 
@@ -18,37 +13,44 @@ struct WelcomePopupView: View {
             Text("Что бросаем?")
                 .font(.largeTitle)
                 .bold()
-                .fontDesign(Font.Design.rounded)
+                .fontDesign(.rounded)
 
-            ForEach(
-                WallpaperPreset.allPresets,
-                id: \.id
-            ) { preset in
-
+            ForEach(WallpaperPreset.allPresets, id: \.presetName) { preset in
+///уже выбранные привычки отключаются
+                let isUsed = usedPresets.contains { $0.presetName == preset.presetName }
                 Button {
-
-                    onPresetSelected(preset) // Отправка выбранного пресета обратно
-
+                    if !isUsed {
+                        onPresetSelected(preset)
+                    }
                 } label: {
-
                     Text("\(preset.presetName)")
                         .font(.title2)
                         .padding()
                         .frame(maxWidth: .infinity)
-                        .background(Color(uiColor: .systemGray4))
+                        .background(isUsed ? Color.gray.opacity(0.2) : Color(uiColor: .systemGray4))
                         .foregroundStyle(.white)
                         .cornerRadius(12)
                 }
+                .disabled(isUsed)
             }
+
+            Button("Отмена") {
+                onCancel()
+            }
+            .foregroundColor(.secondary)
         }
         .padding(30)
         .background(.white)
         .cornerRadius(25)
         .padding(40)
+        .shadow(radius: 24)
     }
 }
 
-#Preview
-{
-    ContentView()
+#Preview {
+    WelcomePopupView(
+        usedPresets: [WallpaperPreset.smoking],
+        onPresetSelected: { _ in },
+        onCancel: {}
+    )
 }

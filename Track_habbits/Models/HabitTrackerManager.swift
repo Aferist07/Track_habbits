@@ -2,16 +2,16 @@ import Foundation
 import SwiftUI
 import Combine
 
-// --------- ЛОГИКА: ХРАНИТ ВСЕ ТРЕКЕРЫ ---------
 class HabitTrackerManager: ObservableObject {
-    @Published var trackers: [HabitTracker] = [] // Все трекеры
-    @Published var selectedTrackerID: UUID?      // id выбранного трекера
-    @Published var showTrackersList: Bool = false // Показать список трекеров (для анимации)
 
-    private var timerCancellable: AnyCancellable? // Для тиков времени
+    @Published var trackers: [HabitTracker] = [] //все трекеры
+    @Published var selectedTrackerID: UUID?      //айди выбранного трекера
+    @Published var showTrackersList: Bool = false //показать список трекеров
+
+    private var timerCancellable: AnyCancellable? //для тиков времени
 
     init() {
-        // Автоматический тик каждую секунду, чтобы обновлять вьюшки
+///обновление каждую секунду для таймеров
         timerCancellable = Timer.publish(every: 1, on: .main, in: .common)
             .autoconnect()
             .sink { [weak self] _ in
@@ -19,14 +19,20 @@ class HabitTrackerManager: ObservableObject {
             }
     }
 
-    // Добавить новый трекер/таймер
-    func addTracker(name: String, preset: WallpaperPreset) {
-        let tracker = HabitTracker(name: name, preset: preset, startDate: nil, isOn: false)
+///добавить новый трекер для выбранного пресета
+    func addTracker(with preset: WallpaperPreset) {
+///не добавлять если такой уже есть
+        guard !trackers.contains(where: { $0.preset.presetName == preset.presetName }) else { return }
+        let tracker = HabitTracker(
+            preset: preset,
+            startDate: nil,
+            isOn: false
+        )
         trackers.append(tracker)
         selectedTrackerID = tracker.id
     }
 
-    // Запустить таймер для выбранного трекера
+///старт трекера
     func startTracker(_ tracker: HabitTracker) {
         updateTracker(tracker.id) { t in
             t.isOn = true
@@ -34,25 +40,24 @@ class HabitTrackerManager: ObservableObject {
         }
     }
 
-    // Остановить таймер для выбранного трекера
-    func stopTracker(_ tracker: HabitTracker) {
-        updateTracker(tracker.id) { t in
-            t.isOn = false
-            t.startDate = nil
+///остановить и удалить трекер
+    func deleteTracker(_ tracker: HabitTracker) {
+        // Если выбранный удаляется, сбросить выбор
+        if selectedTrackerID == tracker.id {
+            selectedTrackerID = nil
         }
+        trackers.removeAll { $0.id == tracker.id }
     }
 
-    // Выбрать трекер
+///выбрать трекер
     func selectTracker(_ tracker: HabitTracker) {
         selectedTrackerID = tracker.id
     }
 
-    // Получить выбранный трекер
     var selectedTracker: HabitTracker? {
         trackers.first(where: { $0.id == selectedTrackerID })
     }
 
-    // Хелпер для мутабельного изменения по id
     private func updateTracker(_ id: UUID, mutate: (inout HabitTracker) -> Void) {
         guard let idx = trackers.firstIndex(where: { $0.id == id }) else { return }
         mutate(&trackers[idx])

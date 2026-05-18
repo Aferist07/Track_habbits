@@ -7,7 +7,7 @@ struct WallpaperPreset: Identifiable {
     let emojis: [String]
     let emojiCount: Int
     let presetName: String
-    let textColor: Color  // <-- ОДИН Color, не массив
+    let textColor: Color  //ОДИН Color, не массив
 }
 
 extension WallpaperPreset {
@@ -36,17 +36,16 @@ extension WallpaperPreset {
         textColor: .black
     )
     
-    // Новый свежий пресет
     static let freshness = WallpaperPreset(
         colors: [
             Color.white,
-            Color(red: 0.90, green: 0.97, blue: 1.00), // Лёгкий голубой
-            Color(red: 0.94, green: 1.00, blue: 0.97)  // Лёгкий зелёный
+            Color(red: 0.90, green: 0.97, blue: 1.00), // легкий голубой
+            Color(red: 0.94, green: 1.00, blue: 0.97)  // легкий зелёный
         ],
         emojis: ["💧", "🌱", "🕊️"],
         emojiCount: 50,
         presetName: "💉",
-        textColor: Color(red: 0.40, green: 0.50, blue: 0.55) // Приглушённо-серый-бирюзовый
+        textColor: Color(red: 0.40, green: 0.50, blue: 0.55) // приглушенно серый бирюзовый
     )
 
     static let allPresets = [

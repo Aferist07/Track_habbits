@@ -63,13 +63,13 @@ struct TimerButton: View {
     var body: some View {
         Button(action: action) {
             ZStack {
-                // Большой круглый белый фон
+///большой круглый белый фон
                 Circle()
                     .fill(Color.white)
                     .frame(width: 250, height: 250)
                     .shadow(color: .black.opacity(0.12), radius: 18, y: 7)
 
-                // Градиентная обводка
+///градиентная обводка
                 Circle()
                     .stroke(
                         LinearGradient(
@@ -82,7 +82,7 @@ struct TimerButton: View {
                     )
                     .frame(width: 250, height: 250)
 
-                // Градиентный текст
+///градиентный текст
                 Text(isOn ? "СТОП" : "СТАРТ")
                     .font(.system(size: 48, weight: .bold, design: .rounded))
                     .foregroundStyle(
