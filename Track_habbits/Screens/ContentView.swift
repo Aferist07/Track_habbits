@@ -2,41 +2,18 @@ import SwiftUI
 import Combine
 
 struct ContentView: View {
-
-/// менеджер привычек
-    @StateObject private var manager = HabitTrackerManager() // управляет всеми трекерами
-    @State private var showWelcomePopup = false // показывает окно выбора пресета
-
-    
-/// старая логика, на всякий случай
-/*
-    @State private var totalSec = 0
-    @State private var isOn = false
-    @State private var selectedPreset = WallpaperPreset.blank
-    @AppStorage("startDate")
-    private var startDate = 0.0
-    private let timer = Timer
-        .publish(every: 1, on: .main, in: .common)
-        .autoconnect()
-    var timeString: String {
-        let days = totalSec / 86400
-        let hours = (totalSec % 86400) / 3600
-        let minutes = (totalSec % 3600) / 60
-        let secs = totalSec % 60
-        return String(
-            format: "%02d:%02d:%02d:%02d",
-            days,
-            hours,
-            minutes,
-            secs
-        )
-    }
-    */
+    @StateObject private var manager = HabitTrackerManager()
+    @State private var showWelcomePopup = false
+    @State private var showStopConfirmation = false
+    @State private var showReasonSheet = false
+    @State private var stopReasonText = ""
+    @State private var trackerToStop: HabitTracker?
+    @State private var showHistory = false
+    @State private var showAchievements = false
 
     var body: some View {
         NavigationStack {
             ZStack {
-///пресет выбранного трекера
                 if let tracker = manager.selectedTracker {
                     EmojiWallpaperView(preset: tracker.preset)
                 } else {
@@ -44,12 +21,7 @@ struct ContentView: View {
                 }
 
                 VStack {
-///ник привычки и мини таймер
                     if let tracker = manager.selectedTracker {
-                        Text(tracker.preset.presetName)
-                            .font(.system(size: 72))
-                            .padding(.top, 16)
-
                         Text("Дней без \(tracker.preset.presetName)")
                             .font(.system(size: 34))
                             .foregroundStyle(tracker.preset.textColor)
@@ -57,20 +29,18 @@ struct ContentView: View {
                             .bold()
                             .padding(.bottom, 12)
 
-///время трекера
                         Text(timeString(for: tracker))
                             .font(.system(size: 60))
                             .fontWeight(.bold)
                             .foregroundStyle(tracker.preset.textColor)
                             .fontDesign(.rounded)
 
-///СТАРТ/СТОП
                         TimerButton(
                             isOn: tracker.isOn
                         ) {
                             if tracker.isOn {
-/// при остановке привычка удаляется
-                                manager.deleteTracker(tracker)
+                                trackerToStop = tracker
+                                showStopConfirmation = true
                             } else {
                                 manager.startTracker(tracker)
                             }
@@ -92,17 +62,21 @@ struct ContentView: View {
                     }
                 }
 
-///СПИСОК ТРЕКЕРОВ
                 if manager.showTrackersList {
-                    TrackersListView(manager: manager)
-                        .zIndex(1) // Поверх контента
-                        .animation(.spring(response: 0.45, dampingFraction: 0.75), value: manager.showTrackersList)
+                    TrackersListView(
+                        manager: manager,
+                        onDelete: { tracker in
+                            trackerToStop = tracker
+                            showStopConfirmation = true
+                        }
+                    )
+                    .zIndex(1)
+                    .animation(.spring(response: 0.45, dampingFraction: 0.75), value: manager.showTrackersList)
                 }
 
-///попап для выбора новой привычки
                 if showWelcomePopup {
                     WelcomePopupView(
-                        usedPresets: manager.trackers.map { $0.preset }, //уже занятые пресеты
+                        usedPresets: manager.trackers.map { $0.preset },
                         onPresetSelected: { preset in
                             manager.addTracker(with: preset)
                             showWelcomePopup = false
@@ -117,17 +91,20 @@ struct ContentView: View {
             }
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-///меню
                     Menu {
-///кнопка с трекерами
                         Button("Мои трекеры") {
                             withAnimation(.spring(response: 0.45, dampingFraction: 0.75)) {
-                                manager.showTrackersList = true //показать список
+                                manager.showTrackersList = true
                             }
                         }
-///кнопка добавления
                         Button("Добавить привычку") {
-                            showWelcomePopup = true //показать меню выбора
+                            showWelcomePopup = true
+                        }
+                        Button("История") {
+                            showHistory = true
+                        }
+                        Button("Достижения") { // Новый пункт
+                            showAchievements = true
                         }
                     } label: {
                         Image(systemName: "line.3.horizontal")
@@ -136,10 +113,55 @@ struct ContentView: View {
                     }
                 }
             }
+            .sheet(isPresented: $showHistory) {
+                HistoryView(manager: manager)
+            }
+            .sheet(isPresented: $showAchievements) { // new sheet
+                AchievementsView(manager: manager)
+            }
+            .alert("Вы уверены?", isPresented: $showStopConfirmation, actions: {
+                Button("Да", role: .destructive) {
+                    showReasonSheet = true
+                }
+                Button("Нет", role: .cancel) { }
+            }, message: {
+                Text("Причина рецидива будет сохранена в истории. Продолжить?")
+            })
+            .sheet(isPresented: $showReasonSheet, onDismiss: {
+                stopReasonText = ""
+            }) {
+                VStack(spacing: 24) {
+                    Text("Причина рецидива?")
+                        .font(.title2)
+                        .bold()
+                    TextField("можно не заполнять", text: $stopReasonText, axis: .vertical)
+                        .textFieldStyle(.roundedBorder)
+                        .opacity(0.7)
+                        .padding(.horizontal)
+                    HStack(spacing: 20) {
+                        Button("Подтвердить") {
+                            if let tracker = trackerToStop {
+                                manager.finishTracker(tracker, reason: stopReasonText)
+                                stopReasonText = ""
+                                trackerToStop = nil
+                                showReasonSheet = false
+                            }
+                        }
+                        .buttonStyle(.borderedProminent)
+                        Button("Отмена") {
+                            stopReasonText = ""
+                            trackerToStop = nil
+                            showReasonSheet = false
+                        }
+                        .buttonStyle(.bordered)
+                    }
+                }
+                .padding()
+                .presentationDetents([.medium])
+            }
         }
     }
 
-///вспомогательная функция для отображения времени трекера
     func timeString(for tracker: HabitTracker) -> String {
         let totalSec = tracker.totalSeconds
         let days = totalSec / 86400

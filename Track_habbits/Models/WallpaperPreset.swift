@@ -25,15 +25,17 @@ extension WallpaperPreset {
         emojis: ["🌿", "🌱", "🍃"],
         emojiCount: 80,
         presetName: "🚬",
-        textColor: .white
+        textColor: Color(red: 0.16, green: 0.38, blue: 0.30)
     )
 
     static let fire = WallpaperPreset(
-        colors: [.pink, .white, .red, .white],
-        emojis: ["🔥", "❤️", "☄️"],
+        colors: [Color(red: 0.85, green: 0.58, blue: 0.62),
+                 Color(red: 0.98, green: 0.92, blue: 0.92),
+                 Color(red: 0.92, green: 0.75, blue: 0.77)],
+        emojis: ["🌸", "🎀", "🍥"],
         emojiCount: 100,
         presetName: "🍷",
-        textColor: .black
+        textColor: Color(red: 0.45, green: 0.28, blue: 0.33)
     )
     
     static let freshness = WallpaperPreset(

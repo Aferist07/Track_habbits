@@ -8,54 +8,6 @@
 import SwiftUI
 
 
-/*
-struct TimerButton: View {
-
-    let isOn: Bool
-    let action: () -> Void
-
-    var body: some View {
-
-        Button(action: action) {
-
-            HStack(alignment: .center) {
-
-                VStack {
-
-                    ZStack {
-
-                        Circle()
-                            .frame(width: 250, height: 250)
-                            .foregroundStyle(
-                                isOn ? .red : .green
-                            )
-                            .overlay(
-                                Circle()
-                                    .stroke(Color(.clear), lineWidth: 5)
-                                            //Color(red: 0.486, green: 0.125, blue: 0.137) :
-                                            //Color(red: 0.1137, green: 0.5176, blue: 0.2157),
-                                            //lineWidth: 3)
-                                    .blur(radius: 5))
-                            .shadow(radius: 5)
-                           
-                        Text(isOn ? "STOP" : "START")
-                            .foregroundStyle(isOn ?
-                                             Color(red: 0.486, green: 0.125, blue: 0.137) :
-                                             Color(red: 0.1137, green: 0.5176, blue: 0.2157))
-                            .blur(radius: 0.5)
-                            .fontWeight(.bold)
-                            .font(.system(size: 50))
-                            .fontDesign(Font.Design.rounded)
-                    }
-                }
-            }
-        }
-    }
-}
-*/
-
-
-
 struct TimerButton: View {
     var isOn: Bool
     var action: () -> Void

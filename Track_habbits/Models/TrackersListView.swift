@@ -2,6 +2,7 @@ import SwiftUI
 
 struct TrackersListView: View {
     @ObservedObject var manager: HabitTrackerManager
+    var onDelete: (HabitTracker) -> Void //новый параметр
 
     var body: some View {
         ZStack {
@@ -32,7 +33,6 @@ struct TrackersListView: View {
                                         Text(tracker.preset.presetName)
                                             .font(.system(size: 40))
                                         Spacer()
-///мини таймер только с максимальной единицей
                                         Text(shortTime(for: tracker))
                                             .font(.title2)
                                             .foregroundStyle(.secondary)
@@ -41,9 +41,11 @@ struct TrackersListView: View {
                                     .background(.ultraThinMaterial)
                                     .cornerRadius(14)
                                 }
-///кнопка удаления
+///кнопка удаления теперь вызывает onDelete
                                 Button(role: .destructive) {
-                                    manager.deleteTracker(tracker)
+///Было: manager.deleteTracker(tracker)
+///Стало:
+                                    onDelete(tracker)
                                 } label: {
                                     Image(systemName: "trash")
                                         .foregroundStyle(.red)
@@ -66,8 +68,6 @@ struct TrackersListView: View {
             .transition(.move(edge: .bottom).combined(with: .opacity))
         }
     }
-
-///мини таймер с самой большой единицей
 
     func shortTime(for tracker: HabitTracker) -> String {
         let s = tracker.totalSeconds
