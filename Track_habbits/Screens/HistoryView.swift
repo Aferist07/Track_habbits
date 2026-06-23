@@ -105,7 +105,7 @@ struct HistoryDetailView: View {
                     .bold()
             }
             VStack(alignment: .leading, spacing: 8) {
-                Text("Причина рецидива")
+                Text("Причина обнуления трекера")
                     .font(.caption)
                     .foregroundColor(.secondary)
                 if let reason = entry.reason, !reason.isEmpty {

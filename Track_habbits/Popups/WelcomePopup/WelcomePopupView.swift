@@ -1,28 +1,35 @@
 import SwiftUI
 
-struct WelcomePopupView: View {
-
+struct WelcomePopupView: View
+{
     let usedPresets: [WallpaperPreset]
     let onPresetSelected: (WallpaperPreset) -> Void
     let onCancel: () -> Void
-
-    var body: some View {
-
-        VStack(spacing: 20) {
-
-            Text("Что бросаем?")
+    var body: some View
+    {
+        VStack(spacing: 20)
+        {
+            Text("Что бросаем/начинаем?")
                 .font(.largeTitle)
                 .bold()
                 .fontDesign(.rounded)
-
-            ForEach(WallpaperPreset.allPresets, id: \.presetName) { preset in
-///уже выбранные привычки отключаются
-                let isUsed = usedPresets.contains { $0.presetName == preset.presetName }
-                Button {
-                    if !isUsed {
+            ForEach(WallpaperPreset.allPresets, id: \.presetName)
+            {
+                preset in
+                ///уже выбранные привычки отключаются
+                let isUsed = usedPresets.contains
+                {
+                    $0.presetName == preset.presetName
+                }
+                Button
+                {
+                    if !isUsed
+                    {
                         onPresetSelected(preset)
                     }
-                } label: {
+                }
+            label:
+                {
                     Text("\(preset.presetName)")
                         .font(.title2)
                         .padding()
@@ -33,9 +40,8 @@ struct WelcomePopupView: View {
                 }
                 .disabled(isUsed)
             }
-
-            Button("Отмена") {
-                onCancel()
+            Button("Отмена")
+            { onCancel()
             }
             .foregroundColor(.secondary)
         }
@@ -47,10 +53,8 @@ struct WelcomePopupView: View {
     }
 }
 
+
+
 #Preview {
-    WelcomePopupView(
-        usedPresets: [WallpaperPreset.smoking],
-        onPresetSelected: { _ in },
-        onCancel: {}
-    )
+    ContentView()
 }
